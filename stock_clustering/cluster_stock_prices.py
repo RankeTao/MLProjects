@@ -42,15 +42,26 @@ def get_quotes(stock_symbols, names, startDate, endDate):
     :return: {quotes, list of DataFrame}, stock_symbols, names
     """
     quotes = []
-    for stock_symbol in stock_symbols:
+    shape = []
+    last_shape = 1
+    for i, stock_symbol in enumerate(stock_symbols):
         print(stock_symbol)
         try:
             quote = pdr.get_data_yahoo(stock_symbol, startDate, endDate)
-            # print(quote)
-            quotes.append(quote)
+            print(quote.shape)
+            if not i:
+                quotes.append(quote)
+                shape.append(quote.shape)
+            elif quote.shape == shape[i-last_shape]:
+                quotes.append(quote)
+                shape.append(quote.shape)
+            else:
+                stock_symbols, names = delete_stock_symbol_from_array(stock_symbol, stock_symbols, names)
+                last_shape +=1
+                print(f"{stock_symbol} is deleted for shape is different!")
         except Exception:
-            print(f"{stock_symbol} is deleted!")
-            stock_symbols, names = delete_stocks_ymbol_from_array(stock_symbol, stock_symbols, names)
+            print(f"{stock_symbol} is deleted because an error happened while getting the data!")
+            stock_symbols, names = delete_stock_symbol_from_array(stock_symbol, stock_symbols, names)
     return quotes, stock_symbols, names
 
 
@@ -60,12 +71,22 @@ if __name__ == "__main__":
     labels = load_json_from_file(json_file)
     print(labels.keys())
     # choose one label to analyse
-    symbols = labels['117家在美上市科技类知名公司']
+    # 0 - '556家中国在美上市公司'
+    # 1 - '117家在美上市科技类知名公司'
+    # 2 - '42家在美上市金融类知名公司'
+    # 3 - '62家在美上市医药、食品类知名公司'
+    # 4 - '9家在美上市媒体类知名公司'
+    # 5 - '36家在美上市汽车、能源类知名公司'
+    # 6 - '59家在美上市制造、零售类知名公司'
+    # 7 - '25家在美知名ETF'
+    label = list(labels.keys())[7]
+    print(label)
+    symbols = labels[label]
     # get the stock symbols and names of some label
     # It takes too long to load all the stock data,
     # so I set it to 10, you can change the number as you like.
     # if delete the "[0:10]", it loads all the data at default.
-    stock_symbols, names = np.array(list(symbols.items())[0:10]).T
+    stock_symbols, names = np.array(list(symbols.items())[::]).T
     # print(stock_symbols, names)
 
     # convert the time to Datetime
@@ -74,9 +95,9 @@ if __name__ == "__main__":
     # get the stock price data from the web
     print("Loading data....")
     quotes, stock_symbols, names = get_quotes(stock_symbols, names, startDate, endDate)
-
+    print(len(quotes))
     df = pd.concat(quotes, axis=0, keys=stock_symbols)
-    df.to_csv(r"stock_clustering/117家在美上市科技类知名公司.csv")
+    df.to_csv(f"stock_clustering/{label}.csv")
     print("Data Saved to CSVFile!")
 
     # cluster the quotes
