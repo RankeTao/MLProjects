@@ -42,24 +42,23 @@ def get_quotes(stock_symbols, names, startDate, endDate):
     :return: {quotes, list of DataFrame}, stock_symbols, names
     """
     quotes = []
-    shape = []
-    last_shape = 1
+    shape = None
     for i, stock_symbol in enumerate(stock_symbols):
         print(stock_symbol)
         try:
             quote = pdr.get_data_yahoo(stock_symbol, startDate, endDate)
             print(quote.shape)
             if not i:
+                # make sure the first shape is right
                 quotes.append(quote)
-                shape.append(quote.shape)
-            elif quote.shape == shape[i-last_shape]:
+                shape = quote.shape
+            elif quote.shape == shape:
                 quotes.append(quote)
-                shape.append(quote.shape)
             else:
                 stock_symbols, names = delete_stock_symbol_from_array(stock_symbol, stock_symbols, names)
-                last_shape +=1
                 print(f"{stock_symbol} is deleted for shape is different!")
-        except Exception:
+        except Exception as e:
+            print(e)
             print(f"{stock_symbol} is deleted because an error happened while getting the data!")
             stock_symbols, names = delete_stock_symbol_from_array(stock_symbol, stock_symbols, names)
     return quotes, stock_symbols, names
@@ -79,7 +78,7 @@ if __name__ == "__main__":
     # 5 - '36家在美上市汽车、能源类知名公司'
     # 6 - '59家在美上市制造、零售类知名公司'
     # 7 - '25家在美知名ETF'
-    label = list(labels.keys())[7]
+    label = list(labels.keys())[0]
     print(label)
     symbols = labels[label]
     # get the stock symbols and names of some label
