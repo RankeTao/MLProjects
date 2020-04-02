@@ -23,7 +23,7 @@ image file configuration
 &emsp;&emsp;        {<br>
 &emsp;&emsp;&emsp;             "class_label": 1,<br>
 &emsp;&emsp;&emsp;             "class_name": "jiangwen",<br>
-&emsp;&emsp;&emsp;             "class_test_images": 11,
+&emsp;&emsp;&emsp;             "class_test_images": 11,<br>
 &emsp;&emsp;&emsp;             "class_trainer_images": 92<br>
 &emsp;&emsp;        },<br>
 &emsp;&emsp;        {<br>
